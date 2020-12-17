@@ -49,7 +49,7 @@ int main(void) {
   
   
  
-  xTaskCreate(task_read_buttons, (signed char*) "task_read_buttons", configMINIMAL_STACK_SIZE, NULL, 3, NULL);
+  //xTaskCreate(task_read_buttons, (signed char*) "task_read_buttons", configMINIMAL_STACK_SIZE, NULL, 3, NULL);
   xTaskCreate(check_wash, (signed char*) "check_wash", configMINIMAL_STACK_SIZE, NULL, 3, NULL);
   xTaskCreate(check_ironing, (signed char*) "check_ironing", configMINIMAL_STACK_SIZE, NULL, 3, NULL);  
   

@@ -10,7 +10,8 @@
 
 
 void config_tasks();
-void task_read_buttons();
+void color_clothes();
+void white_clothes();
 void check_wash();
 void run_wash(); //clothes_control_t clothes_washing
 void check_ironing();

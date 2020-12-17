@@ -8,17 +8,6 @@ extern machine_t w_machine;
 extern machine_t i_machine;
 int flag = 0;
 
-/*Interrupt callback function, _INT0Interrupt defines calback only for INT0, see C30 User Guide for PIC24*/
-void __attribute__((__interrupt__)) _INT0Interrupt(void)
-{
-    if(IFS0bits.INT0IF) // secure checks if interrupt is from INT0
-    {
-        PORTCbits.RC12 = !PORTCbits.RC12; // change led state
-        IFS0bits.INT0IF = 0; // clear interrupt Flag
-    }
-    return;
-}
-
 
 void config_tasks()
 {
@@ -32,9 +21,58 @@ void config_tasks()
    TRISFbits.TRISF6 = 1;    // Set RF6 as Input
    IFS0bits.INT0IF = 0;     // Clear INT0 Interrupt Flag 
    IEC0bits.INT0IE = 1;     // Enable Interrupt Request on INT0   
-    
+   IEC1bits.INT1IE = 1;    // Enable Interrupt Request on IN1
    
 }
+
+/*Interrupt callback function, _INT0Interrupt defines calback only for INT0, see C30 User Guide for PIC24*/
+void __attribute__((__interrupt__)) _INT0Interrupt(void)
+{
+    if(IFS0bits.INT0IF) // secure checks if interrupt is from INT0
+    {
+        PORTCbits.RC12 = !PORTCbits.RC12; // change led state
+        color_clothes();
+    }
+    
+    return;
+}
+
+void __attribute__((__interrupt__)) _INT1Interrupt(void)
+{
+    if(IFS1bits.INT1IF)
+    {
+       PORTCbits.RC12 = !PORTCbits.RC12;
+       white_clothes();
+    }
+    
+    return;
+}
+
+void color_clothes()
+{
+      clothes_control_t clothes;
+      clothes.color = 0; //colorida
+      clothes.washing_cycles = 1; //1 ciclo de lavagem
+      clothes.state = 0; //roupa está suja
+
+      f_clothes.clothes_waiting[f_clothes.fila_size] = clothes;
+      f_clothes.fila_size++;
+
+      IFS0bits.INT0IF = 0; //volta botão para 0
+}
+
+void white_clothes()
+{
+      clothes_control_t clothes;
+      clothes.color = 1; //roupa branca
+      clothes.washing_cycles = 2; //2 ciclos de lavagem
+      clothes.state = 0; //roupa está suja
+
+      f_clothes.clothes_waiting[f_clothes.fila_size] = clothes;
+      f_clothes.fila_size++;
+      IFS1bits.INT1IF = 0;
+}
+
 
 
 void task_read_buttons()
