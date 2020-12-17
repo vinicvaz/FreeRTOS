@@ -1,5 +1,5 @@
 #include <p24FJ128GA010.h>
-
+#include <libpic30.h>
 #include "user_tasks.h"
 #include "user_structures.h"
 
@@ -8,14 +8,34 @@ extern machine_t w_machine;
 extern machine_t i_machine;
 int flag = 0;
 
+/*Interrupt callback function, _INT0Interrupt defines calback only for INT0, see C30 User Guide for PIC24*/
+void __attribute__((__interrupt__)) _INT0Interrupt(void)
+{
+    if(IFS0bits.INT0IF) // secure checks if interrupt is from INT0
+    {
+        PORTCbits.RC12 = !PORTCbits.RC12; // change led state
+        IFS0bits.INT0IF = 0; // clear interrupt Flag
+    }
+    return;
+}
+
+
 void config_tasks()
 {
    TRISCbits.TRISC1 = 1; // colorido
    TRISCbits.TRISC2 = 1; // branco
    TRISCbits.TRISC3 = 0; // maquina
    TRISCbits.TRISC4 = 0; // ferro de passar
-   //TRISCbits.TRISC ?? debug
+   TRISCbits.TRISC12= 0; // out interrupt button (INT0)
+   
+      /* Config External Interrupt on INT0/RF6 */
+   TRISFbits.TRISF6 = 1;    // Set RF6 as Input
+   IFS0bits.INT0IF = 0;     // Clear INT0 Interrupt Flag 
+   IEC0bits.INT0IE = 1;     // Enable Interrupt Request on INT0   
+    
+   
 }
+
 
 void task_read_buttons()
 {
